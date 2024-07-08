@@ -103,6 +103,8 @@ class DataProcessing:
         self.result_queue.put((processed_chunk, idx))
 
     def process_profiles(self):
+        logger.info("------------------------")
+        logger.info(f"Started Processing")
         t_0 = time()
 
         profile_chunks = [

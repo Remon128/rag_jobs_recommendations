@@ -1,17 +1,35 @@
-import faiss
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent))
 import numpy as np
 from retrieval.indexing import Indexing
 import logging
 from generation.llm_loading import LLM
+from argparse import ArgumentParser
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 
+def cmd_args():
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--job",
+        type=str,
+        help=f"The job title you want to use for recommendation",
+    )
+
+    args = parser.parse_args()
+
+    return args
+
+
 class query:
     def __init__(self):
         self.indexer = Indexing()
+        logger.info(f"Started Indexing data")
         self.indexer.vectorize_data()
+        logger.info(f"Finished Indexing data")
         self.vectorizer = self.indexer.count_vectorizer
         self.index = self.indexer.store_docs_to_vector_db_and_get_index()
         self.retrieved_docs = []
@@ -86,6 +104,7 @@ class query:
             generation_output: LLm generation output
             final_prompt: the prompt loaded with query and retrieved docs
         """
+        logger.info(f"Started Loading LLM and creating prompt")
         llm_object = LLM()
         context = self.retrieve_profile_docs(query=query)
         RAG_PROMPT_TEMPLATE = self.create_rag_chat_template(tokenizer=llm_object.tokenizer)
@@ -94,11 +113,15 @@ class query:
         print(final_prompt)
 
         llm_reader = llm_object.instantiate_LLM_Reader()
+        logger.info(f"Prompting the LLM")
         generation_output = llm_reader(final_prompt)[0]["generated_text"]
         generation_output = generation_output.replace(final_prompt, "")
+        logger.info(f"Generation response is ready")
         return generation_output, final_prompt
 
 
 if __name__ == "__main__":
+    args = cmd_args()
     query_object = query()
-    query_object.query_llm_with_retrieval_results(query="Machine learning Engineer")
+    generation, prompt = query_object.query_llm_with_retrieval_results(query=args.job)
+    logger.info(f"Generation output {generation}s")

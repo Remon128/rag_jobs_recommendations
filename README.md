@@ -22,3 +22,14 @@ This repository is building a RAG system to recommend advice and tips to user ba
 - Apply more evaluation techniques using a query data set.
 - Dockerize environment for llm and search engine.
 - Apply RLHF technique to enhance system performance.
+
+
+## How to start the system:
+- The system can work on cpu , but inference will take some time around 20 mins.
+- To start the system you can run in terminal `python query/query_rag.py --job "job title"` example
+- `python query/query_rag.py --job "machine learning engineer"`
+
+## Evaluate the system
+- You can run this command `python evaluation/relevance_evaluate.py --job "Machine learning engineer""`
+- NOTE:
+- The system is working on 50% of jobs data due to RAM limitation , so expected some jobs to not be found during search.
