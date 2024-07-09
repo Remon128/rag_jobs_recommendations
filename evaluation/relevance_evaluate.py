@@ -1,4 +1,21 @@
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent))
 from query.query_rag import query
+from argparse import ArgumentParser
+
+
+def cmd_args():
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--job",
+        type=str,
+        help=f"The job title you want to use for recommendation",
+    )
+
+    args = parser.parse_args()
+
+    return args
 
 
 class RelevanceEvaluate:
@@ -20,11 +37,12 @@ class RelevanceEvaluate:
 
 
 if __name__ == '__main__':
+    args = cmd_args()
     # Sample prompt and retrieved passage
-    query_message = "Machine learning engineer"
+    query_message = args.job
 
     rag_response = query()
-    retrieved_passage, prompt = rag_response.query_llm_with_retreival_results(query=query_message)
+    retrieved_passage, prompt = rag_response.query_llm_with_retrieval_results(query=query_message)
     # Calculate relevance score using keyword matching
     evaluation_object = RelevanceEvaluate()
     relevance_score = evaluation_object.keyword_match_score(prompt=prompt, passage=retrieved_passage)
